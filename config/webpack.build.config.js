@@ -1,11 +1,13 @@
 const path = require("path");
 // html自动打包
 var HtmlWebpackPlugin = require("html-webpack-plugin");
+// 清空上一次的打包文件
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
   // 模式 开始模式 会自动预设安装插件 模式不同安装插件不同
   // 可以使用 node 自带的 process.env.NODE_ENV 来获取所在的环境
-  mode: 'development',// production 生产模式  development 开发模式
+  mode: 'production',// production 生产模式  development 开发模式
 
   /* 入口 */
   entry:  path.join(__dirname, "../src/index.js"),
@@ -16,7 +18,7 @@ module.exports = {
     filename: '[name].[chunkhash].js',
   },
   // 加载打包前的代码
-  devtool: "inline-source-map",
+  devtool: "cheap-module-source-map",
 
   /* cacheDirectory是用来缓存编译结果，下次编译加速 */
   module: {
@@ -37,6 +39,18 @@ module.exports = {
         use: ["style-loader", "css-loader","postcss-loader"],
       },
       {
+        test: /\.(png|jpg|gif)$/,
+        use: [
+          {
+            loader: "url-loader",
+            options: {
+              // 控制小于10K的图片会被转成base64编码，直接插入HTML中.
+              limit: 10240,
+            },
+          },
+        ],
+      },
+      {
         test: /\.less$/,
         use: ["style-loader","css-loader",
           {
@@ -50,18 +64,6 @@ module.exports = {
           "postcss-loader",
         ],
       },
-      {
-        test: /\.(png|jpg|gif)$/,
-        use: [
-          {
-            loader: "url-loader",
-            options: {
-              // 控制小于10K的图片会被转成base64编码，直接插入HTML中.
-              limit: 10240,
-            },
-          },
-        ],
-      },
     ],
   },
 
@@ -71,6 +73,7 @@ module.exports = {
       minify: true,
       template: path.join(__dirname, "../src/index.html"),
     }),
+    new CleanWebpackPlugin()
   ],
   
   // 优化项配置
@@ -93,27 +96,8 @@ module.exports = {
       }
     }
   },
-  
   // 导入文件 无需后缀
   resolve: {
     extensions: [".js", ".jsx", ".json",".ts",".tsx"]
-  },
-
-  // webpack-dev-server
-  devServer: {
-    contentBase: path.join(__dirname, "../dist"),
-    compress: true, // gzip压缩
-    host: "0.0.0.0", // 允许ip访问
-    hot: true, // 热更新
-    historyApiFallback: true, // 解决启动后刷新404
-    port: 8000, // 端口
-    proxy: {
-      // 配置服务代理
-      "/api": {
-        target: "http://localhost:3000",
-        pathRewrite: { "^/api": "" }, // 转换请求 /api/users 为 http://localhost:3000/users
-        changeOrigin: true,
-      },
-    },
   },
 };

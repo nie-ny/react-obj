@@ -8,6 +8,7 @@ import { addAction, reduceAction } from "../store/action";
 import timg from "../images/timg.jpg";
 
 import "./home.css";
+import "./home.less";
 
 function Home(props) {
   const { count, onAddClick, onReduceClick } = props;
@@ -27,7 +28,7 @@ function Home(props) {
 
   return (
     <div className="home">
-      <span>{state[0]?.name}--我是首页计数器{count}</span>
+      <span className="hLess">{state[0]?.name}--我是首页计数器{count}</span>
       <button onClick={onAddClick}>加</button>
       <button onClick={onReduceClick}>减</button>
       <img src={timg} alt="图" />
